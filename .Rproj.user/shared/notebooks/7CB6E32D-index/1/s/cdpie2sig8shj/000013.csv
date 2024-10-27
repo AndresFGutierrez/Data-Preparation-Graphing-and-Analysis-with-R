@@ -1,0 +1,7 @@
+"0","library(knitr)"
+"0","library(kableExtra)"
+"0","df_covid_modificado <- df_covid_final"
+"0",""
+"0","kable(df_covid_modificado, format = ""html"") %>%"
+"0","  kable_styling(full_width = FALSE) %>%"
+"0","  column_spec(1:8, width = ""10em"")"

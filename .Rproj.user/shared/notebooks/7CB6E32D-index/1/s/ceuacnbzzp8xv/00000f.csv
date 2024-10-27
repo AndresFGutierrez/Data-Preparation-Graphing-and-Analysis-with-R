@@ -1,0 +1,5 @@
+"0","df_covid_final <- df_covid_final %>% "
+"0","  mutate(Sexo = case_when("
+"0","    Sexo == 'F' ~ 'Femenino',"
+"0","    Sexo == 'M' ~ 'Masculino'"
+"0","  ))"

@@ -1,0 +1,8 @@
+"0","ggplot(data = df_covid_final, aes(x = `Tipo de recuperación`, fill = Sexo)) +"
+"0","  geom_bar(position = ""dodge"") +"
+"0","  labs(title = 'Casos Covid por Tipo de Recuperación y Sexo',"
+"0","       subtitle = 'Grafico de barras',"
+"0","       x = 'Tipo de Recuperación',"
+"0","       y = 'Cantidad') +"
+"0","  scale_fill_manual(values = c(""Femenino"" = ""#f942da"", ""Masculino"" = ""#0c2fd0"")) +"
+"0","  theme_bw()"

@@ -1,0 +1,4 @@
+- source: project
+  quarto-pub:
+    - id: 05cdfc2a-1a33-41b0-bae5-ccbf344526d6
+      url: 'https://andresfgutierrez.quarto.pub/presentacion-datos-covid'

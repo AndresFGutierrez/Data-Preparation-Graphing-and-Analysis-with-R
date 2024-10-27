@@ -1,0 +1,171 @@
+---
+title: "Reto6 - Presentacion"
+author: "Andres Gutierrez"
+description: "Análisis de datos COVID-19"
+keywords: ["COVID-19", "análisis de datos", "R", "presentación"]
+execute: 
+  cache: true
+format:
+  revealjs:
+    theme: "black"
+    highlight: true
+    transition: "slide"
+    
+header-includes:
+  - |
+    <style>
+      h1 {
+        font-size: 2.5em;
+        color: #00aaff;
+      }
+      h2 {
+        font-size: 2em;
+        color: #ffaa00;
+      }
+      .reveal section {
+        overflow-y: auto;  /* Permite scroll vertical */
+      }
+      table {
+        font-size: 0.7em;  /* Ajusta el tamaño de la fuente */
+      }
+    </style>
+knitr:
+  opts_chunk: 
+    echo: true   # Mostrar el código por defecto
+    eval: true   # Evaluar los chunks
+editor: visual
+---
+
+## Primer Paso
+
+Importamos las librerias necesarias
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(readxl)
+```
+
+```{r, echo=FALSE}
+# Cargamos los datos de los retos anteriores. Estos archivos contienen la información base
+# que necesitaremos para realizar el análisis del reto actual. No mostramos este proceso
+# al usuario, ya que no es parte del objetivo final, pero es crucial para preparar el marco de datos.
+
+Datos_Covid_1 <- read_excel("data/Datos_Covid_1.xlsx")
+Datos_Covid_2 <- read_excel("data/Datos_Covid_2.xlsx")
+df_covid1 <- Datos_Covid_1 %>%
+  select(
+    `ID de caso`,
+    `Nombre departamento`,
+    `Nombre municipio`,
+    Edad,
+    `Unidad de medida de edad`,
+    Sexo,
+    `Pertenencia étnica`
+  )
+df_covid2 <- Datos_Covid_2 %>%
+  select(-`Fecha de notificación`)
+df_covid_final <- inner_join(df_covid1, df_covid2, by = "ID de caso")
+df_covid_final <- df_covid_final %>% 
+  mutate(`Unidad de medida de edad` = case_when(
+    `Unidad de medida de edad` == 1 ~ 'año',
+    `Unidad de medida de edad` == 2 ~ 'meses',
+    `Unidad de medida de edad` == 3 ~ 'dias'
+  ))
+```
+
+## Segundo Paso
+
+Cambia las categorías de la variable Sexo por: F = Femenino M = Masculino
+
+```{r}
+df_covid_final <- df_covid_final %>% 
+  mutate(Sexo = case_when(
+    Sexo == 'F' ~ 'Femenino',
+    Sexo == 'M' ~ 'Masculino'
+  ))
+```
+
+## Tercer Paso
+
+Elabora un gráfico de barras que describa la cantidad de casos para cada tipo de recuperación y según el sexo.
+
+```{r, echo=FALSE}
+ggplot(data = df_covid_final, aes(x = `Tipo de recuperación`, fill = Sexo)) +
+  geom_bar(position = "dodge") +
+  labs(title = 'Casos Covid por Tipo de Recuperación y Sexo',
+       subtitle = 'Grafico de barras',
+       x = 'Tipo de Recuperación',
+       y = 'Cantidad') +
+  scale_fill_manual(values = c("Femenino" = "#f942da", "Masculino" = "#0c2fd0")) +
+  theme_bw()
+```
+
+## Cuarto Paso
+
+Cambia las categorías de la variable pertenencia étnica por: 1 = Indígena 2 = ROM 3 = Raizal 4 = Palenquero 5 = Negro 6 = Otro
+
+```{r}
+df_covid_final <- df_covid_final %>% 
+  mutate(`Pertenencia étnica` = case_when(
+    `Pertenencia étnica` == 1 ~ 'Indígena',
+    `Pertenencia étnica` == 2 ~ 'ROM',
+    `Pertenencia étnica` == 3 ~ 'Raizal',
+    `Pertenencia étnica` == 4 ~ 'Palenquero',
+    `Pertenencia étnica` == 5 ~ 'Negro',
+    `Pertenencia étnica` == 6 ~ 'Otro'
+  ))
+```
+
+## Quinto Paso
+
+Elabora un gráfico de barras dividido en facetas, donde cada faceta corresponda a una categoría de la variable pertenencia étnica y describa la cantidad de casos por hombres y mujeres.
+
+```{r, echo=FALSE}
+ggplot(data = df_covid_final, mapping = aes(x=Sexo, fill=Sexo)) +
+  geom_bar(width = 0.5) +
+  labs(title = 'Pertenencia Étnica por Sexo',
+       subtitle = 'Grafico de barras',
+       x = 'Sexo',
+       y = 'Cantidad') +
+  facet_wrap(.~`Pertenencia étnica`) +
+  scale_fill_manual(values = c("Femenino" = "#42f9e3", "Masculino" = "#e7f020")) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+## Sexto Paso
+
+Enuncia conclusiones que consideres pertinentes respecto a lo observado en los gráficos.
+
+### **Conclusiones Primer Gráfico**
+
+- **Recuperación por Tiempo es la más común**: Esto puede indicar que la mayoría de las personas se recuperan de manera natural con el paso del tiempo.
+
+- **Diferencia de tamaño entre las barras de Tiempo y PCR**: Hay una gran diferencia entre el número de personas que se recuperaron por PCR y aquellas que lo hicieron por el paso del tiempo, lo que podría sugerir que el uso de pruebas PCR no fue tan común para monitorear la recuperación.
+
+- **La categoría NA tiene muy pocos casos**: Se observa una cantidad significativamente baja de casos en comparación con "PCR" y "Tiempo". Esto puede indicar que la mayoría de los casos de recuperación fueron correctamente clasificados.
+
+### **Conclusiones Segundo Gráfico**
+
+- **Categoría "Otro" predomina**: La mayoría de los casos reportados se encuentran en la categoría "Otro", tanto para hombres como para mujeres. Esto sugiere que muchas personas no se identificaron con las etnias especificadas dentro de esta categoría. El número de casos en mujeres es ligeramente superior al de los hombres, aunque la diferencia no es muy grande.
+
+- **Baja representación de las etnias "Indígena" y "Negro"**: Hay una cantidad muy pequeña de casos en estas categorías, tanto en hombres como en mujeres. Esto puede indicar una baja representación de estas etnias en los datos, o que las personas de estas etnias no se vieron afectadas en la misma cantidad que las clasificadas en "Otro".
+
+- **Distribución por Sexo**: Se observa que las mujeres tienden a tener un número mayor de casos en comparación con los hombres en todas las categorías.
+
+## Septimo Paso
+
+Guarda las modificaciones realizadas a los datos para obtener así un “nuevo” marco de datos.
+
+```{r, echo=FALSE, results='asis'}
+library(knitr)
+library(kableExtra)
+df_covid_modificado <- df_covid_final
+
+kable(df_covid_modificado, format = "html") %>%
+  kable_styling(full_width = FALSE) %>%
+  column_spec(1:8, width = "10em")
+
+
+```
